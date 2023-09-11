@@ -1,7 +1,21 @@
-import NewsService from "../src/services/newsService"
+import NewsService, { News } from "../src/services/newsService";
 
 describe("Tests for the news service", () => {
-    test.todo("should be able to fetch remote data");
-    test.todo("should be able to fetch cached data the DB");
-    test.todo("should be able to clear all previous data");
-})
+    let service: NewsService;
+    let data: News[] = [];
+
+    beforeAll(() => {
+        service = new NewsService();
+    });
+
+    test("should be able to fetch remote data", async () => {
+        data = await service.fetchNewsFromNet();
+        expect(data.length).toBeGreaterThan(0);
+        expect(data[0]).toBeTruthy();
+    });
+
+    test("should have stored the previous data into a DB", async () => {
+        let dataFromDb = await service.fetchNewsFromDB();
+        expect(dataFromDb).toEqual(data);
+    });
+});

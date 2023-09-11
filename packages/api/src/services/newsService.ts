@@ -9,7 +9,7 @@ interface NewsSource {
     link: string;
 }
 
-interface News {
+export interface News {
     id: string;
     title: string;
     description: string;
@@ -26,12 +26,6 @@ export default class NewsService {
     }
 
     async fetchNewsFromNet(): Promise<Array<News>> {
-        return new Promise((resolve, reject) => {
-            reject("Not implemented");
-        })
-    }
-
-    async cacheNews(): Promise<Array<News>> {
         return new Promise((resolve, reject) => {
             reject("Not implemented");
         })
