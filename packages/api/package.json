@@ -1,0 +1,22 @@
+{
+  "name": "@splinter/api",
+  "version": "0.0.0",
+  "description": "This is the API service for the splinter platform",
+  "main": "dist/index.js",
+  "scripts": {
+    "test": "jest",
+    "build": "tsc",
+    "dev": "tsc --watch"
+  },
+  "keywords": [
+    "api",
+    "server",
+    "backend",
+    "node"
+  ],
+  "author": "Aadvik <aadv1k@outlook.com>",
+  "license": "MIT",
+  "devDependencies": {
+    "typescript": "^5.2.2"
+  }
+}
