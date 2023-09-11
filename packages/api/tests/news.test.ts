@@ -7,7 +7,7 @@ describe('Tests for /v1/news', () => {
           .get('/v1/news')
 
       const data = response.body;
-      expect(response.status).toBe(201);
+      expect(response.status).toBe(200);
   });
 
   test.todo('Should return news data with valid API key');

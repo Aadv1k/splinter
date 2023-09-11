@@ -1,12 +1,10 @@
 import { Router, Request, Response } from "express";
+import * as newsController from "../../controllers/news"
 
 const router = Router();
 
-
 // GET /v1/news/
-router.get("/", (req: Request, res: Response) => {
-    res.status(500).json({error: "Not implemented"});
-})
+router.get("/",  newsController.getNews)
 
 // POST, PUT, PATCH, DELETE, UPDATE /v1/news
 router.all("/", (req: Request, res: Response) => {
