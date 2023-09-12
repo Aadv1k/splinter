@@ -1,5 +1,6 @@
-import * as Knex from 'knex';
+import * as Knex from 'knex'
 import { PG_CONFIG } from "../config"
+import { News } from "../services/newsService"
 
 interface NewsDB {
     id: string;
@@ -14,11 +15,34 @@ interface NewsDB {
 }
 
 class NewsModel {
-    private readonly knex: Knex;
+    private readonly knex: any;
 
-    constructor(knex: Knex) {
+    constructor(knex: any) {
         this.knex = knex;
     }
+
+    async init() {
+        try {
+            const exists = await this.knex.schema.hasTable('news_table');
+            if (!exists) {
+                await this.knex.schema.createTable('news_table', (table: any) => {
+                    table.uuid('id');
+                    table.text('title');
+                    table.text('description');
+                    table.text('timestamp');
+                    table.text('coverUrl', 255);
+                    table.integer('left_bias');
+                    table.integer('right_bias');
+                    table.text('site');
+                    table.text('link');
+                });
+            }
+        } catch (error: any) {
+            console.error('ERROR: unable to create table:', error.message);
+            throw error;
+        }
+    }
+
 
     async createNews(news: News): Promise<string> {
         try {
@@ -33,11 +57,10 @@ class NewsModel {
                 site: news.source.site,
                 link: news.source.link,
             };
-
             await this.knex('news_table').insert(dbNews);
 
             return news.id;
-        } catch (error) {
+        } catch (error: any) {
             throw new Error(`Failed to create news: ${error.message}`);
         }
     }
@@ -45,7 +68,7 @@ class NewsModel {
     async deleteNewsById(id: string): Promise<void> {
         try {
             await this.knex('news_table').where('id', id).del();
-        } catch (error) {
+        } catch (error: any) {
             throw new Error(`Failed to delete news: ${error.message}`);
         }
     }
@@ -58,7 +81,7 @@ class NewsModel {
                     left_bias: leftBias,
                     right_bias: rightBias,
                 });
-        } catch (error) {
+        } catch (error: any) {
             throw new Error(`Failed to update bias for news: ${error.message}`);
         }
     }
@@ -72,7 +95,7 @@ class NewsModel {
             }
             
             return this.mapDBToNews(dbNews);
-        } catch (error) {
+        } catch (error: any) {
             throw new Error(`Failed to fetch news by ID: ${error.message}`);
         }
     }
@@ -81,7 +104,7 @@ class NewsModel {
         try {
             const dbNews: NewsDB[] = await this.knex('news_table').select('*');
             return dbNews.map(this.mapDBToNews);
-        } catch (error) {
+        } catch (error: any) {
             throw new Error(`Failed to fetch news: ${error.message}`);
         }
     }
@@ -90,7 +113,7 @@ class NewsModel {
         try {
             const dbNews: NewsDB[] = await this.knex('news_table').select('*').orderBy('timestamp', 'asc');
             return dbNews.map(this.mapDBToNews);
-        } catch (error) {
+        } catch (error: any) {
             throw new Error(`Failed to fetch news by date: ${error.message}`);
         }
     }
@@ -99,7 +122,7 @@ class NewsModel {
         try {
             const dbNews: NewsDB[] = await this.knex('news_table').select('*').where(`${bias}_bias`, '>', 0);
             return dbNews.map(this.mapDBToNews);
-        } catch (error) {
+        } catch (error: any) {
             throw new Error(`Failed to fetch news by bias: ${error.message}`);
         }
     }
@@ -123,14 +146,14 @@ class NewsModel {
     }
 }
 
-const knexConfig: Knex.Config = {
+const knexConfig = {
   client: 'pg',
   connection: {
-    host: PG_CONFIG.host,
-    user: PG_CONFIG.user,
-    password: PG_CONFIG.password,
-    database: PG_CONFIG.database,
-    port: PG_CONFIG.port,
+    host: PG_CONFIG.host as string,
+    user: PG_CONFIG.user as string,
+    password: PG_CONFIG.password as string,
+    database: PG_CONFIG.database as string,
+    port: PG_CONFIG.port as number,
   },
 };
 
@@ -138,4 +161,3 @@ const knex = Knex.default(knexConfig);
 const newsModel = new NewsModel(knex);
 
 export default newsModel;
-

@@ -1,6 +1,6 @@
-import { NEWSAPI_KEY } from "../config";
+import { NEWSAPI_KEY, NODE_ENV } from "../config";
 import NewsModel from "../models/NewsModel";
-
+import example_newsapi_data from "../data/example_newsapi.json";
 import { v4 as uuidv4 } from "uuid";
 import superagent from 'superagent';
 
@@ -65,15 +65,26 @@ export default class NewsService {
         }
     }
 
-    async cacheNews(news: News[]): Promise<News[] | null> {
-        return null; 
+    async getNews(): Promise<News[]> {
+        return await NewsModel.getNewsByDate();
     }
 
+    async cacheNews(news: News[]): Promise<void> {
+        for (const item of news) {
+            try {
+                await NewsModel.createNews(item);
+            } catch (err) {
+                throw new Error(`ERROR: failed to create news of id ${item.id}, title ${item.title}: ${err}`);
+            }
+        }
+    }
 
-    async fetchNews(): Promise<Array<News>> {
-        const data = await this.fetchDataFromNewsapi("politics");
+    async fetchNews(): Promise<News[]> {
+        //const data = NODE_ENV === "development" ? example_newsapi_data : await this.fetchDataFromNewsapi("politics");
 
-        const news: News[] = data.articles.map(e => {
+        const data = example_newsapi_data;
+
+        const news: News[] = data.articles.map((e: any) => {
             const parsedUrl = new URL(e.url);
             return {
                 id: uuidv4(),
@@ -89,7 +100,7 @@ export default class NewsService {
                     left: isOutletLeft(parsedUrl.hostname) ? 10 : 0,
                     right: isOutletLeft(parsedUrl.hostname) ? 0 : 10,
                 }
-            } as News;
+            };
         });
 
         return news;
