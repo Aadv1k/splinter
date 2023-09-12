@@ -1,0 +1,26 @@
+// info sourced from ChatGPT, prompt ->
+// provide me a list of american right-leaning news sites with their domains until 2021
+
+[
+    // American right-leaning outlets
+
+    "foxnews.com",
+    "breitbart.com",
+    "nationalreview.com",
+    "dailycaller.com",
+    "washingtonexaminer.com",
+    "americanthinker.com",
+    "theamericanconservative.com",
+    "townhall.com",
+
+    // Indian right-leaning outlets
+
+    "swarajyamag.com",
+    "opindia.com",
+    "republicworld.com",
+    "zeenews.india.com",
+    "indiatvnews.com",
+    "janasatta.com",
+    "organiser.org",
+    "postcard.news"
+]

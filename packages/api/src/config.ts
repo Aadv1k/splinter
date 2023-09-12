@@ -6,7 +6,7 @@ dotenv.config({ path: path.resolve(__dirname, '../.env') });
 export const PORT = 8080;
 export const NEWSAPI_KEY = process.env.NEWSAPI_KEY ?? null;
 
-export const NODE_ENV = process.env.NODE_ENV ?? "development";
+export const NODE_ENV = process.env.NODE_ENV ? process.env.NODE_ENV : "development";
 
 export const PG_CONFIG = {
     host: process.env.DB_HOST,

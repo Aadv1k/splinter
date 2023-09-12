@@ -1,0 +1,26 @@
+// info sourced from ChatGPT, prompt ->
+// provide me a list of american left-leaning news sites with their domains until 2021
+ 
+[
+    // American left-leaning outlets 
+
+    "nytimes.com",
+    "washingtonpost.com",
+    "cnn.com",
+    "msnbc.com",
+    "theguardian.com",
+    "huffpost.com",
+    "vox.com",
+    "thenation.com",
+    "newrepublic.com",
+    "motherjones.com",
+
+    // Indian left-leaning outlets 
+
+    "thehindu.com",     
+    "indianexpress.com",
+    "scroll.in",        
+    "thewire.in",       
+    "thequint.com",
+    "ndtv.com"
+]

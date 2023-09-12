@@ -1,8 +1,11 @@
 import { NEWSAPI_KEY, NODE_ENV } from "../config";
 import NewsModel from "../models/NewsModel";
-import example_newsapi_data from "../data/example_newsapi.json";
 import { v4 as uuidv4 } from "uuid";
 import superagent from 'superagent';
+
+import example_newsapi_data from "../data/example_newsapi.json";
+import leftLeaningSites from "../data/left_leaning_sites.json";
+import rightLeaningSites from "../data/right_leaning_sites.json";
 
 interface NewsBias {
     right: number;
@@ -26,20 +29,15 @@ export interface News {
 
 const isOutletLeft = (domain: string): boolean => {
     const strippedDomain = domain.replace(/^www\./, "");
-    const leftDomains = [
-        "nytimes.com",
-        "washingtonpost.com",
-        "cnn.com",
-        "msnbc.com",
-        "theguardian.com",
-        "huffpost.com",
-        "vox.com",
-        "thenation.com",
-        "newrepublic.com",
-        "motherjones.com",
-    ];
-    return leftDomains.includes(strippedDomain);
+    return leftLeaningSites.includes(strippedDomain);
 };
+
+
+const isOutletRight = (domain: string): boolean => {
+    const strippedDomain = domain.replace(/^www\./, "");
+    return rightLeaningSites.includes(strippedDomain);
+};
+
 
 export default class NewsService {
     private apiKey: string;
@@ -80,9 +78,7 @@ export default class NewsService {
     }
 
     async fetchNews(): Promise<News[]> {
-        //const data = NODE_ENV === "development" ? example_newsapi_data : await this.fetchDataFromNewsapi("politics");
-
-        const data = example_newsapi_data;
+        const data = NODE_ENV === "development" ? example_newsapi_data : await this.fetchDataFromNewsapi("politics");
 
         const news: News[] = data.articles.map((e: any) => {
             const parsedUrl = new URL(e.url);
@@ -98,7 +94,7 @@ export default class NewsService {
                 },
                 bias: {
                     left: isOutletLeft(parsedUrl.hostname) ? 10 : 0,
-                    right: isOutletLeft(parsedUrl.hostname) ? 0 : 10,
+                    right: isOutletRight(parsedUrl.hostname) ? 10 : 0,
                 }
             };
         });
