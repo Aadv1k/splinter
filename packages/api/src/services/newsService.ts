@@ -1,4 +1,6 @@
 import { NEWSAPI_KEY } from "../config";
+import NewsModel from "../models/NewsModel";
+
 import { v4 as uuidv4 } from "uuid";
 import superagent from 'superagent';
 

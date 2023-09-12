@@ -1,5 +1,20 @@
 # @splinter/api
 
+## Setup locally
+
+You will require an API key from [newsapi](https://newsapi.org/), along with some db config. Here is an example
+
+```.env
+NEWSAPI_KEY = ""
+
+DB_HOST = "localhost"
+DB_USER = "postgres"
+DB_PASSWORD = "password"
+DB_NAME = "SplinterDB"
+DB_PORT = 5432
+```
+
+
 ## Design
 
 POST /v1/users/login

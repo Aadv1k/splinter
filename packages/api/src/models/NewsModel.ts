@@ -1,4 +1,5 @@
 import * as Knex from 'knex';
+import { PG_CONFIG } from "../config"
 
 interface NewsDB {
     id: string;
@@ -12,7 +13,7 @@ interface NewsDB {
     link: string;
 }
 
-export class NewsModel {
+class NewsModel {
     private readonly knex: Knex;
 
     constructor(knex: Knex) {
@@ -121,3 +122,20 @@ export class NewsModel {
         };
     }
 }
+
+const knexConfig: Knex.Config = {
+  client: 'pg',
+  connection: {
+    host: PG_CONFIG.host,
+    user: PG_CONFIG.user,
+    password: PG_CONFIG.password,
+    database: PG_CONFIG.database,
+    port: PG_CONFIG.port,
+  },
+};
+
+const knex = Knex.default(knexConfig);
+const newsModel = new NewsModel(knex);
+
+export default newsModel;
+
