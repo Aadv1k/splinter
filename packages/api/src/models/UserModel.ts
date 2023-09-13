@@ -1,6 +1,5 @@
 import * as Knex from 'knex';
 import { PG_CONFIG } from "../config";
-import { News } from "../services/newsService";
 import { User } from "../types";
 import { v4 as uuidv4 } from 'uuid';
 
@@ -18,14 +17,25 @@ class UserModel {
         table.uuid('id').primary().defaultTo(uuidv4());
         table.string('email').unique().notNullable();
         table.string('password').notNullable();
+        table.string('key').notNullable().unique(); // Add a 'key' field
       });
     }
   }
+
 
   async createUser(user: User): Promise<User | null> {
     try {
       const [createdUser] = await this.knex('users').insert(user).returning('*');
       return createdUser || null;
+    } catch (error) {
+      return null;
+    }
+  }
+
+  async getUserByKey(key: string): Promise<User | null> {
+    try {
+      const user = await this.knex('users').where('key', key).first();
+      return user || null;
     } catch (error) {
       return null;
     }
@@ -55,14 +65,14 @@ class UserModel {
 }
 
 const knexConfig = {
-    client: 'pg',
-    connection: {
-        host: PG_CONFIG.host as string,
-        user: PG_CONFIG.user as string,
-        password: PG_CONFIG.password as string,
-        database: PG_CONFIG.database as string,
-        port: PG_CONFIG.port as number,
-    },
+  client: 'pg',
+  connection: {
+    host: PG_CONFIG.host as string,
+    user: PG_CONFIG.user as string,
+    password: PG_CONFIG.password as string,
+    database: PG_CONFIG.database as string,
+    port: PG_CONFIG.port as number,
+  },
 };
 
 const knex = Knex.default(knexConfig);
