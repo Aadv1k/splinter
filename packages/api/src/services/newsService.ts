@@ -32,12 +32,10 @@ const isOutletLeft = (domain: string): boolean => {
     return leftLeaningSites.includes(strippedDomain);
 };
 
-
 const isOutletRight = (domain: string): boolean => {
     const strippedDomain = domain.replace(/^www\./, "");
     return rightLeaningSites.includes(strippedDomain);
 };
-
 
 export default class NewsService {
     private apiKey: string;

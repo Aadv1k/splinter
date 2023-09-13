@@ -140,7 +140,6 @@ async init() {
         }
     }
 
-
     async getNewsByBias(bias: "left" | "right"): Promise<News[]> {
         try {
             const dbNews: NewsDB[] = await this.knex('news_article')
