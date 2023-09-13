@@ -12,7 +12,6 @@ router.post("/register",  userController.registerUser)
 // GET /v1/users/key
 router.get("/key",  userController.issueKeyForUser)
 
-
 // POST, PUT, PATCH, DELETE, UPDATE /v1/user
 router.all("/", (req: Request, res: Response) => {
     res.status(405).json({error: "Not implemented"});

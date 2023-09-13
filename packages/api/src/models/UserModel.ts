@@ -5,16 +5,16 @@ import { User } from "../types";
 import { v4 as uuidv4 } from 'uuid';
 
 class UserModel {
-  private readonly knex: Knex;
+  private readonly knex: Knex.Knex;
 
-  constructor(knex: Knex) {
+  constructor(knex: Knex.Knex) {
     this.knex = knex;
   }
 
   async init() {
     const tableExists = await this.knex.schema.hasTable('users');
     if (!tableExists) {
-      await this.knex.schema.createTable('users', (table) => {
+      await this.knex.schema.createTable('users', (table: any) => {
         table.uuid('id').primary().defaultTo(uuidv4());
         table.string('email').unique().notNullable();
         table.string('password').notNullable();
