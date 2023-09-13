@@ -23,8 +23,8 @@ export async function registerUser(req: Request, res: Response) {
       error: {
         code: ErrorCode.BadRequest,
         message: 'Bad Request',
-        description: 'Unable to register user due to bad request',
-        details: { ...schemaError },
+        description: 'Invalid user data. Please check your email and password and try again.',
+        details: { },
       },
       http_status: 400,
     };
@@ -40,7 +40,7 @@ export async function registerUser(req: Request, res: Response) {
           code: ErrorCode.BadRequest,
           message: 'Bad Request',
           description: 'User exists, try logging in instead',
-          details: data,
+          details: { email: data.email },
         },
         http_status: 400,
       };

@@ -1,11 +1,16 @@
 import { Request, Response } from "express";
 import NewsService, { News } from "../services/newsService";
 import { ErrorCode, ErrorResponse, SuccessResponse } from "../types";
+
 import NewsModel from "../models/NewsModel";
+import UserModel from "../models/UserModel";
 
 export async function voteForNews(req: Request, res: Response) {
   try {
     const newsId = req.params.id;
+    const { vote as newsVote } = req.body;
+
+    // NewsModel.voteForUser(newsid, userid, vote);
 
     if (!newsId) {
       const errorResponse: ErrorResponse = {
@@ -34,10 +39,8 @@ export async function voteForNews(req: Request, res: Response) {
         http_status: 404,
       };
       res.status(404).json(errorResponse);
-      return; // Exit the function
+      return;
     }
-
-    // TODO: Check for an authorization header (authentication logic goes here)
 
     const authHeader = req.headers.authorization;
 
@@ -55,7 +58,13 @@ export async function voteForNews(req: Request, res: Response) {
       return;
     }
 
-    // TODO: not implemented
+    const userExists = await UserModel.getUserByKey(authHeader)
+
+    if (!userExists) {
+        // user not found
+        return;
+    }
+
 
     const successResponse: SuccessResponse = {
         data: {
