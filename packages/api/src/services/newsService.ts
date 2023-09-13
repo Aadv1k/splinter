@@ -83,6 +83,7 @@ export default class NewsService {
 
         const news: News[] = data.articles.map((e: any) => {
             const parsedUrl = new URL(e.url);
+
             return {
                 id: uuidv4(),
                 title: e.title,

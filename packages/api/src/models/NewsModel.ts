@@ -102,15 +102,44 @@ async init() {
 
     async getNewsByDate(): Promise<News[]> {
         try {
-            const dbNews: NewsDB[] = await this.knex('news_article')
-                .select('*')
-                .orderBy('timestamp', 'asc');
+            const dbNews: any = await this.knex('news_article')
+                .select(
+                    'news_article.id as article_id',
+                    'news_article.title',
+                    'news_article.description',
+                    'news_article.timestamp',
+                    'news_article.coverUrl',
+                    'news_source.site as source_site',
+                    'news_source.link as source_link',
+                    'news_bias.left as bias_left',
+                    'news_bias.right as bias_right'
+                )
+                .leftJoin('news_source', 'news_article.id', 'news_source.article_id')
+                .leftJoin('news_bias', 'news_article.id', 'news_bias.article_id')
+                .orderBy('news_article.timestamp', 'asc');
 
-            return dbNews.map(this.mapDBToNews);
+            const news: News[] = dbNews.map((dbRow: any) => ({
+                id: dbRow.article_id,
+                title: dbRow.title,
+                description: dbRow.description,
+                timestamp: dbRow.timestamp,
+                coverUrl: dbRow.coverUrl,
+                source: {
+                    site: dbRow.source_site,
+                    link: dbRow.source_link,
+                },
+                bias: {
+                    left: dbRow.bias_left,
+                    right: dbRow.bias_right,
+                },
+            }));
+
+            return news;
         } catch (error: any) {
             throw new Error(`Failed to fetch news by date: ${error.message}`);
         }
     }
+
 
     async getNewsByBias(bias: "left" | "right"): Promise<News[]> {
         try {
