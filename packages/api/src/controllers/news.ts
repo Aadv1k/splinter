@@ -60,12 +60,12 @@ export async function voteForNews(req: Request, res: Response) {
     const successResponse: SuccessResponse = {
         data: {
             message: "Vote submitted successfully"
-        }
+        },
         meta: null,
-        http_code: 200
+        http_status: 200
     }
     res.status(200).json(successResponse);
-  } catch (error) {
+  } catch (error: any) {
     console.error('ERROR: /v1/news/vote:', error);
     const errorResponse: ErrorResponse = {
       error: {
@@ -99,7 +99,7 @@ export async function getNews(req: Request, res: Response) {
     };
 
     res.status(200).json(responseData);
-  } catch (error) {
+  } catch (error: any) {
     console.error('ERROR: /api/v1/news :', error);
 
     const errorResponse: ErrorResponse = {

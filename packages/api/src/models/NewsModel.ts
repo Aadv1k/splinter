@@ -17,47 +17,92 @@ class NewsModel {
         this.knex = knex;
     }
 
-async init() {
-    try {
-        const articleTableExists = await this.knex.schema.hasTable('news_article');
-        const biasTableExists = await this.knex.schema.hasTable('news_bias');
-        const sourceTableExists = await this.knex.schema.hasTable('news_source');
+    async getNewsById(id: string): Promise<News | null> {
+        try {
+            const dbNews = await this.knex('news_article')
+                .select(
+                    'news_article.id as article_id',
+                    'news_article.title',
+                    'news_article.description',
+                    'news_article.timestamp',
+                    'news_article.coverUrl',
+                    'news_source.site as source_site',
+                    'news_source.link as source_link',
+                    'news_bias.left as bias_left',
+                    'news_bias.right as bias_right'
+                )
+                .leftJoin('news_source', 'news_article.id', 'news_source.article_id')
+                .leftJoin('news_bias', 'news_article.id', 'news_bias.article_id')
+                .where('news_article.id', id)
+                .first();
 
-        if (!articleTableExists) {
-            await this.knex.schema.createTable('news_article', (table: any) => {
-                table.uuid('id').primary();
-                table.text('title');
-                table.text('description');
-                table.timestamp('timestamp');
-                table.text('coverUrl');
-            });
-        }
+            if (!dbNews) {
+                return null;
+            }
 
-        if (!biasTableExists) {
-            await this.knex.schema.createTable('news_bias', (table: any) => {
-                table.increments('id').primary();
-                table.integer('left');
-                table.integer('right');
-                table.uuid('article_id').references('id').inTable('news_article');
-            });
-        }
+            const news: News = {
+                id: dbNews.article_id,
+                title: dbNews.title,
+                description: dbNews.description,
+                timestamp: dbNews.timestamp,
+                coverUrl: dbNews.coverUrl,
+                source: {
+                    site: dbNews.source_site,
+                    link: dbNews.source_link,
+                },
+                bias: {
+                    left: dbNews.bias_left,
+                    right: dbNews.bias_right,
+                },
+            };
 
-        if (!sourceTableExists) {
-            await this.knex.schema.createTable('news_source', (table: any) => {
-                table.increments('id').primary();
-                table.string('site');
-                table.string('link');
-                table.uuid('article_id').references('id').inTable('news_article');
-            });
+            return news;
+        } catch (error: any) {
+            throw new Error(`Failed to fetch news by ID: ${error.message}`);
         }
-    } catch (error: any) {
-        throw new Error(`Failed to initialize database: ${error.message}`);
     }
-}
+
+    async init() {
+        try {
+            const articleTableExists = await this.knex.schema.hasTable('news_article');
+            const biasTableExists = await this.knex.schema.hasTable('news_bias');
+            const sourceTableExists = await this.knex.schema.hasTable('news_source');
+
+            if (!articleTableExists) {
+                await this.knex.schema.createTable('news_article', (table: any) => {
+                    table.uuid('id').primary();
+                    table.text('title');
+                    table.text('description');
+                    table.timestamp('timestamp');
+                    table.text('coverUrl');
+                });
+            }
+
+            if (!biasTableExists) {
+                await this.knex.schema.createTable('news_bias', (table: any) => {
+                    table.increments('id').primary();
+                    table.integer('left');
+                    table.integer('right');
+                    table.uuid('article_id').references('id').inTable('news_article');
+                });
+            }
+
+            if (!sourceTableExists) {
+                await this.knex.schema.createTable('news_source', (table: any) => {
+                    table.increments('id').primary();
+                    table.string('site');
+                    table.string('link');
+                    table.uuid('article_id').references('id').inTable('news_article');
+                });
+            }
+        } catch (error: any) {
+            throw new Error(`Failed to initialize database: ${error.message}`);
+        }
+    }
 
 
     async newsExists(news: News): Promise<boolean> {
-       try {
+        try {
             const result = await this.knex('news_article')
                 .select('id')
                 .where({

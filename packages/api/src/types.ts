@@ -2,6 +2,7 @@ export enum ErrorCode {
   InternalError = "Internal_Error",
   BadRequest = "Bad_Request",
   NotFound = "Not_Found",
+  Unauthorized = "Unauthorized"
 }
 
 export interface ErrorResponse {
