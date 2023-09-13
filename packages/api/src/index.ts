@@ -3,6 +3,7 @@ import server from "./server"
 import { PORT } from "./config"
 
 import NewsModel from "./models/NewsModel";
+import UserModel from "./models/UserModel";
 
 
 server.listen(PORT, () => {
@@ -11,4 +12,5 @@ server.listen(PORT, () => {
 
 process.on("exit", async () => {
     await NewsModel.close();
+    await UserModel.close();
 })
