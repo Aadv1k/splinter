@@ -3,7 +3,7 @@ import NewsModel from "../models/NewsModel";
 import { v4 as uuidv4 } from "uuid";
 import superagent from 'superagent';
 
-import example_newsapi_data from "../data/example_newsapi.json";
+import exampleNewsapiData from "../data/example_newsapi.json";
 import leftLeaningSites from "../data/left_leaning_sites.json";
 import rightLeaningSites from "../data/right_leaning_sites.json";
 
@@ -70,6 +70,7 @@ export default class NewsService {
     async cacheNews(news: News[]): Promise<void> {
         for (const item of news) {
             try {
+                if (await NewsModel.newsExists(item)) continue;
                 await NewsModel.createNews(item);
             } catch (err) {
                 throw new Error(`ERROR: failed to create news of id ${item.id}, title ${item.title}: ${err}`);
@@ -78,7 +79,7 @@ export default class NewsService {
     }
 
     async fetchNews(): Promise<News[]> {
-        const data = NODE_ENV === "development" ? example_newsapi_data : await this.fetchDataFromNewsapi("politics");
+        const data = NODE_ENV === "development"  ? exampleNewsapiData : await this.fetchDataFromNewsapi("politics");
 
         const news: News[] = data.articles.map((e: any) => {
             const parsedUrl = new URL(e.url);

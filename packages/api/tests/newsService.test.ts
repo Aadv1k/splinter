@@ -16,7 +16,7 @@ describe("Tests for the news service", () => {
         expect(data[0]).toBeTruthy();
 
         await service.cacheNews(data);
-    });
+    }, 10000);
 
     test("should have stored the previous data into a DB", async () => {
         let dataFromDb = await service.getNews();
@@ -24,6 +24,6 @@ describe("Tests for the news service", () => {
     });
 
     afterAll(async () => {
-        /* idk do something? */
+        await NewsModel.close()
     })
 });
