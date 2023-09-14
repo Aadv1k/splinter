@@ -195,6 +195,20 @@ class NewsModel {
         }
     }
 
+
+    async updateBias(newsId: string, leftBias: number, rightBias: number): Promise<void> {
+        try {
+            await this.knex('news_bias')
+                .where('article_id', newsId)
+                .update({
+                    left_bias: leftBias,
+                    right_bias: rightBias,
+                });
+        } catch (error: any) {
+            throw new Error(`Failed to update bias for news: ${error.message}`);
+        }
+    }
+
     async close() {
         this.knex.destroy();
     }

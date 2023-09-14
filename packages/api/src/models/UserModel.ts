@@ -50,7 +50,7 @@ class UserModel {
     }
   }
 
-    async createUserVote(userVote: UserVote): Promise<UserVote | null> {
+    async createVote(userVote: UserVote): Promise<UserVote | null> {
         try {
             const [createdUserVote] = await this.knex('user_vote').insert(userVote).returning('*');
             return createdUserVote || null;
