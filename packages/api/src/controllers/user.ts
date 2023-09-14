@@ -3,6 +3,9 @@ import { ErrorCode, ErrorResponse, SuccessResponse, User } from "../types";
 import UserModel from "../models/UserModel";
 import Joi from 'joi';
 import { v4 as uuidv4 } from 'uuid';
+import jwt from 'jsonwebtoken';
+
+import { JWT_SECRET } from "../config"
 
 const userSchema = Joi.object<User>({
   email: Joi.string().email().required(),
@@ -24,7 +27,7 @@ export async function registerUser(req: Request, res: Response) {
         code: ErrorCode.BadRequest,
         message: 'Bad Request',
         description: 'Invalid user data. Please check your email and password and try again.',
-        details: { },
+        details: {},
       },
       http_status: 400,
     };
@@ -47,16 +50,18 @@ export async function registerUser(req: Request, res: Response) {
       return res.status(400).json(errorResponse);
     }
 
-    const userApiKey = uuidv4().replace(/-/g, '');
-    const user = {
-      key: userApiKey,
+    const user: User = {
+      id: uuidv4(),
       ...data,
-    } as User;
+    };
 
     await UserModel.createUser(user);
+
+    const token = jwt.sign({ userId: user.id }, JWT_SECRET, { expiresIn: '1h' });
+
     const successResponse: SuccessResponse = {
       data: {
-        key: userApiKey,
+        token: token,
       },
       meta: null,
       http_status: 201,
@@ -109,9 +114,11 @@ export async function loginUser(req: Request, res: Response) {
       return res.status(400).json(errorResponse);
     }
 
+    const token = jwt.sign({ userId: user.id }, JWT_SECRET, { expiresIn: '1h' });
+
     const successResponse: SuccessResponse = {
       data: {
-        key: user.key,
+        token: token,
       },
       meta: null,
       http_status: 200,

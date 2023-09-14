@@ -5,7 +5,6 @@ export enum ErrorCode {
   Unauthorized = "Unauthorized"
 }
 
-
 export interface User {
     id?: string;
     email: string;
