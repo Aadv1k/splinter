@@ -12,19 +12,14 @@ interface NewsBias {
     left: number;
 }
 
-interface NewsSource {
-    site: string;
-    link: string;
-}
-
 export interface News {
     id: string;
     title: string;
     description: string;
     timestamp: string;
     coverUrl?: string;
+    url: string;
     bias: NewsBias;
-    source: NewsSource;
 }
 
 const isOutletLeft = (domain: string): boolean => {
@@ -87,11 +82,8 @@ export default class NewsService {
                 title: e.title,
                 description: e.description,
                 timestamp: e.publishedAt,
-                coverUrl: e.urlToImage,
-                source: {
-                    site: parsedUrl.hostname,
-                    link: parsedUrl.href,
-                },
+                coverurl: e.urlToImage,
+                url: e.url
                 bias: {
                     left: isOutletLeft(parsedUrl.hostname) ? 10 : 0,
                     right: isOutletRight(parsedUrl.hostname) ? 10 : 0,

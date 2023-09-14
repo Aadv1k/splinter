@@ -15,6 +15,32 @@ DB_PORT = 5432
 ```
 
 
+## Database
+
+We use [PostgreSQL](https://www.postgresql.org/) this can be switched with any other SQL database since we don't really use any exclusive feature
+
+- news_article
+  - id (primary uuid)
+  - title (text)
+  - description (text)
+  - cover_url (text)
+  - timestamp (text)
+  - url (text)
+- news_bias
+  - id (primary)
+  - article_id (foreign news\_article.id)
+  - left_bias (integer)
+  - right_bias (integer)
+- user 
+  - id (primary)
+  - email
+  - password
+- user_vote
+  - id (primary)
+  - user_id (foreign users.id)
+  - article_id (foreign news\_article.id)
+  - vote (left | right)
+
 ## Design
 
 POST /v1/users/login
