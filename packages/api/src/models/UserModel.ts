@@ -1,6 +1,6 @@
 import * as Knex from 'knex';
 import { PG_CONFIG } from "../config";
-import { User } from "../types";
+import { User, UserVote } from "../types";
 import { v4 as uuidv4 } from 'uuid';
 
 class UserModel {
@@ -11,31 +11,31 @@ class UserModel {
   }
 
   async init() {
-    const tableExists = await this.knex.schema.hasTable('users');
-    if (!tableExists) {
-      await this.knex.schema.createTable('users', (table: any) => {
+    const userTableExists = await this.knex.schema.hasTable('user');
+    const userVoteTableExists = await this.knex.schema.hasTable('user_vote');
+
+    if (!userTableExists) {
+      await this.knex.schema.createTable('user', (table: any) => {
         table.uuid('id').primary().defaultTo(uuidv4());
         table.string('email').unique().notNullable();
         table.string('password').notNullable();
-        table.string('key').notNullable().unique(); // Add a 'key' field
+      });
+    }
+
+    if (!userVoteTableExists) {
+      await this.knex.schema.createTable('user_vote', (table: any) => {
+        table.increments('id').primary();
+        table.uuid('user_id').references('id').inTable('user').notNullable();
+        table.uuid('article_id').references('id').inTable('news_article').notNullable();
+        table.enu('vote', ['left', 'right']).notNullable();
       });
     }
   }
 
-
   async createUser(user: User): Promise<User | null> {
     try {
-      const [createdUser] = await this.knex('users').insert(user).returning('*');
+      const [createdUser] = await this.knex('user').insert(user).returning('*');
       return createdUser || null;
-    } catch (error) {
-      return null;
-    }
-  }
-
-  async getUserByKey(key: string): Promise<User | null> {
-    try {
-      const user = await this.knex('users').where('key', key).first();
-      return user || null;
     } catch (error) {
       return null;
     }
@@ -43,16 +43,26 @@ class UserModel {
 
   async getUserByEmail(email: string): Promise<User | null> {
     try {
-      const user = await this.knex('users').where('email', email).first();
+      const user = await this.knex('user').where('email', email).first();
       return user || null;
     } catch (error) {
       return null;
     }
   }
 
+    async createUserVote(userVote: UserVote): Promise<UserVote | null> {
+        try {
+            const [createdUserVote] = await this.knex('user_vote').insert(userVote).returning('*');
+            return createdUserVote || null;
+        } catch (error) {
+            return null;
+        }
+    }
+  
+
   async deleteUserByEmail(email: string): Promise<User | null> {
     try {
-      const deletedUser = await this.knex('users').where('email', email).del().returning('*');
+      const deletedUser = await this.knex('user').where('email', email).del().returning('*');
       return deletedUser[0] || null;
     } catch (error) {
       return null;

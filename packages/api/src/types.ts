@@ -10,9 +10,13 @@ export interface User {
     id?: string;
     email: string;
     password: string;
-    key?: string;
 }
 
+interface UserVote {
+  user_id: string;
+  article_id: string;
+  vote: 'left' | 'right';
+}
 
 export interface ErrorResponse {
   error: {
