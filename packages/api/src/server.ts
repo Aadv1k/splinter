@@ -1,12 +1,16 @@
 import express, { Request, Response } from "express";
+import cors from "cors";
 import bodyParser from "body-parser"; 
 
 import v1_NewsRoutes from "./routes/v1/news";
 import v1_UserRoutes from "./routes/v1/user";
+
 import NewsModel from "./models/NewsModel";
 import UserModel from "./models/UserModel";
 
 const app = express();
+
+app.use(cors());
 
 app.use(async (req, res, next) => {
   await NewsModel.init();

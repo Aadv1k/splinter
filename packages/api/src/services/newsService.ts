@@ -83,7 +83,7 @@ export default class NewsService {
                 description: e.description,
                 timestamp: e.publishedAt,
                 coverurl: e.urlToImage,
-                url: e.url
+                url: e.url,
                 bias: {
                     left: isOutletLeft(parsedUrl.hostname) ? 10 : 0,
                     right: isOutletRight(parsedUrl.hostname) ? 10 : 0,
