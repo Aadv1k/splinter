@@ -23,6 +23,8 @@ export default function Article({
 }: ArticleProps) {
   const [vote, setVote] = useState<string | null>(null);
   const [hasVoted, setHasVoted] = useState(false);
+  const [votedFor, setVotedFor] = useState<string | null>(null); // To store which side the user has voted for
+
 
   const onVote = (choice: 'left' | 'right') => {
     if (!jwtToken || hasVoted) {
@@ -62,16 +64,33 @@ export default function Article({
 
   return (
     <div className="flex flex-col gap-4 p-2">
-      <div className="flex justify-around items-center w-full">
-        <button className="text-xl underline text-gray-drkr" onClick={() => onVote('left')}>
-          {left_bias}
-        </button>
-        <p className="capitalize text-lime">
-          Likely {left_bias > right_bias ? 'left' : 'right'}
-        </p>
-        <button className="text-xl underline text-gray-drkr" onClick={() => onVote('right')}>
-          {right_bias}
-        </button>
+        <div className="flex items-center  justify-between">
+          <p className="capitalize text-gray-drk">
+            Likely <span className='text-lime font-bold'>{left_bias > right_bias ? 'left' : 'right'}</span>
+          </p>
+      
+          <div className='flex gap-1'>
+          {/* Highlight the button that the user voted for */}
+          <button
+            onClick={() => onVote("right")}
+            className={`${
+              votedFor === "right" ? "bg-lime text-green-drk" : "bg-transparent text-lime"
+            } rounded-l-lg  font-bold w-9 py-1 border border-1 border-lime transition hover:bg-transparent hover:text-lime`}
+            disabled={hasVoted}
+          >
+            {right_bias}
+          </button>
+          {/* Highlight the button that the user voted for */}
+          <button
+            onClick={() => onVote("left")}
+            className={`${
+              votedFor === "left" ? "bg-lime text-green-drk" : "bg-transparent text-lime"
+            } rounded-r-lg font-bold w-9 py-1 border border-1 border-lime transition hover:bg-transparent hover:text-lime`}
+            disabled={hasVoted}
+          >
+            {left_bias}
+          </button>
+      </div>
       </div>
 
       <div className="flex flex-col gap-4">

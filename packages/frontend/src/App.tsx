@@ -71,7 +71,7 @@ function App() {
         </div>
       </nav>
 
-      <div className="grid grid-cols-1 gap-6 my-4 px-2 md:grid-cols-2 md:gap-8">
+      <div className="grid grid-cols-1 gap-6 my-4 px-2 md:px-0 md:grid-cols-2 md:gap-8">
         {articles.map(article => {
           return <Article {...article} />
         })}
