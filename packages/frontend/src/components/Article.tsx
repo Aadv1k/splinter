@@ -7,6 +7,7 @@ interface ArticleProps {
   title: string;
   description: string;
   url: string;
+  coverUrl?: string;
   jwtToken: string | null;
 }
 
@@ -17,6 +18,7 @@ export default function Article({
   title,
   description,
   url,
+  coverUrl,
   jwtToken,
 }: ArticleProps) {
   const [vote, setVote] = useState<string | null>(null);
@@ -59,24 +61,26 @@ export default function Article({
   }, [jwtToken]);
 
   return (
-    <div className="flex flex-col gap-3">
-      <div className="flex justify-between w-full">
-        <button className="text-lg underline" onClick={() => onVote('left')}>
+    <div className="flex flex-col gap-4 p-2">
+      <div className="flex justify-around items-center w-full">
+        <button className="text-xl underline text-gray-drkr" onClick={() => onVote('left')}>
           {left_bias}
         </button>
-        <p className="capitalize">
+        <p className="capitalize text-lime">
           Likely {left_bias > right_bias ? 'left' : 'right'}
         </p>
-        <button className="text-lg underline" onClick={() => onVote('right')}>
+        <button className="text-xl underline text-gray-drkr" onClick={() => onVote('right')}>
           {right_bias}
         </button>
       </div>
 
-      <div className="flex flex-col gap-3">
-        <h2 className="text-3xl">{title}</h2>
-        <p>
-          {description}
-          <a href={url}>Source</a>
+      <div className="flex flex-col gap-4">
+        <div className={`relative w-full`}>
+          <h2 className="text-5xl font-extrabold text-gray-drk max-w-sm tracking-tight relative z-10">{title}</h2>
+        </div>
+        <p className='text-gray-drkr max-w-prose'>
+          {description}{" "}
+          <a href={url} className='text-lime'>{(new URL(url)).hostname}</a>
         </p>
       </div>
     </div>
