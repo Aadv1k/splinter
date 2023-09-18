@@ -5,6 +5,8 @@ import UserModel from "../models/UserModel";
 import { JWT_SECRET } from "../config";
 import { ServerResponse, ErrorCode } from "../types";
 
+import isEmailValid from "../services/verifyEmail"
+
 import { v4 as uuidv4 } from "uuid";
 
 const userSchema = Joi.object({
@@ -18,6 +20,12 @@ export async function registerUser(req: Request, res: Response) {
   const { error: schemaError } = userSchema.validate(data);
   if (schemaError) {
     return sendErrorResponse(res, 400, ErrorCode.BadRequest, 'Bad Request', 'Invalid user data. Please check your email and password and try again.');
+  }
+
+  const isEmailValidResult = await isEmailValid(data.email);
+
+  if (!isEmailValidResult) {
+    return sendErrorResponse(res, 400, ErrorCode.BadRequest, 'Bad Request', 'Invalid email address.');
   }
 
   try {
