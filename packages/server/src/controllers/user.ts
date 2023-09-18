@@ -1,3 +1,4 @@
+/*
 import { Request, Response } from "express";
 import { ErrorCode, ErrorResponse, SuccessResponse, User } from "../types";
 import UserModel from "../models/UserModel";
@@ -138,3 +139,4 @@ export async function loginUser(req: Request, res: Response) {
     res.status(500).json(errorResponse);
   }
 }
+*/

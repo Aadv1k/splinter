@@ -2,6 +2,8 @@ import * as Knex from 'knex';
 import { PG_CONFIG } from "../config";
 import { News, NewsArticle, NewsBias } from "../types"; 
 
+import { v4 as uuidv4 } from "uuid";
+
 class NewsModel {
     private readonly knex: Knex.Knex;
 
@@ -20,7 +22,7 @@ class NewsModel {
                     table.text('title');
                     table.text('description');
                     table.timestamp('timestamp');
-                    table.text('cover_url');
+                    table.text('coverUrl');
                     table.text('url');
                 });
             }
@@ -51,7 +53,7 @@ class NewsModel {
                 title: dbNews.title,
                 description: dbNews.description,
                 timestamp: dbNews.timestamp,
-                cover_url: dbNews.cover_url,
+                coverUrl: dbNews.coverUrl,
                 url: dbNews.url,
             };
 
@@ -61,68 +63,45 @@ class NewsModel {
         }
     }
 
-    async createNews(news: News & NewsArticle): Promise<string> {
+    async insertNewsArticles(newsArticles: News[]): Promise<string[]> {
         try {
-            const [articleId] = await this.knex('news_article').insert({
-                id: news.id,
-                title: news.title,
-                description: news.description,
-                timestamp: news.timestamp,
-                cover_url: news.cover_url,
-                url: news.url
-            }).returning('id');
+            const insertedIds: string[] = [];
 
-            await this.knex('news_bias').insert({
-                left_bias: news.left_bias,
-                right_bias: news.right_bias,
-                article_id: news.id,
-            });
+            for (const news of newsArticles) {
+                const articleId = uuidv4();
+                await this.knex('news_article').insert({
+                    id: articleId,
+                    title: news.title,
+                    description: news.description,
+                    timestamp: news.timestamp,
+                    coverUrl: news.coverUrl,
+                    url: news.url,
+                });
 
-            return articleId;
+                await this.knex('news_bias').insert({
+                    left_bias: 0,
+                    right_bias: 0,
+                    article_id: articleId,
+                });
+                insertedIds.push(articleId);
+            }
+            return insertedIds;
         } catch (error: any) {
-            throw new Error(`Failed to create news: ${error.message}`);
+            throw new Error(`Failed to create news articles: ${error.message}`);
         }
     }
 
     async getLatestNewsArticles(): Promise<(News & NewsBias)[]> {
         try {
-            const newsData = await this.knex('news_article')
+            const latestArticles = await this.knex
                 .select('news_article.*', 'news_bias.left_bias', 'news_bias.right_bias')
-                .join('news_bias', 'news_article.id', 'news_bias.article_id')
-                .orderBy('news_article.timestamp', 'asc');
+                .from('news_article')
+                .leftJoin('news_bias', 'news_article.id', 'news_bias.article_id')
+                .orderBy('news_article.timestamp', 'desc')
 
-            const newsArticles: (News & NewsBias)[] = newsData.map((result: any) => {
-                const { left_bias, right_bias, ...newsDataWithoutBias } = result;
-
-                const newsBias: NewsBias = {
-                    left_bias,
-                    right_bias,
-                };
-
-                const combinedObject: News & NewsBias = {
-                    ...newsDataWithoutBias,
-                    ...newsBias,
-                };
-
-                return combinedObject;
-            });
-
-            return newsArticles;
+            return latestArticles;
         } catch (error: any) {
-            throw new Error(`Failed to fetch news by date: ${error.message}`);
-        }
-    }
-
-    async updateBias(newsId: string, leftBias: number, rightBias: number): Promise<void> {
-        try {
-            await this.knex('news_bias')
-                .where('article_id', newsId)
-                .update({
-                    left_bias: leftBias,
-                    right_bias: rightBias,
-                });
-        } catch (error: any) {
-            throw new Error(`Failed to update bias for news: ${error.message}`);
+            throw new Error(`Error fetching latest news articles: ${error.message}`);
         }
     }
 

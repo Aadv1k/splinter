@@ -11,26 +11,21 @@ export interface User {
     password: string;
 }
 
-interface UserVote {
+export interface UserVote {
   user_id: string;
   article_id: string;
   vote: 'left' | 'right';
 }
 
-export interface ErrorResponse {
-  error: {
-    code: ErrorCode;
-    message: string;
-    description: string;
-    details?: any;
-  };
-  http_status: number;
-}
-
-export interface SuccessResponse<T = any> {
-  data: T;
-  meta: any;
-  http_status: number;
+export interface ServerResponse {
+    status: "error" | "success";
+    error?: {
+        code: ErrorCode;
+        message: string;
+        description: string;
+    };
+    data?: any;
+    message?: string;
 }
 
 export interface News {
