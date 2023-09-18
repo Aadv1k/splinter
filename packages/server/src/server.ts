@@ -18,10 +18,8 @@ app.use(async (req, res, next) => {
   next();
 });
 
-// Add bodyParser middleware for JSON parsing with error handling
 app.use(bodyParser.json(), (error, req, res, next) => {
   if (error instanceof SyntaxError) {
-    // Handle bad JSON request
     const errorResponse = {
       error: {
         code: "Bad_Request",
@@ -35,7 +33,7 @@ app.use(bodyParser.json(), (error, req, res, next) => {
   next();
 });
 
-app.use("/v1/news", v1_NewsRoutes);
-app.use("/v1/users", v1_UserRoutes);
+app.use("/api/v1/news", v1_NewsRoutes);
+app.use("/api/v1/users", v1_UserRoutes);
 
 export default app;

@@ -4,51 +4,51 @@ import { User, UserVote } from "../types";
 import { v4 as uuidv4 } from 'uuid';
 
 class UserModel {
-  private readonly knex: Knex.Knex;
+    private readonly knex: Knex.Knex;
 
-  constructor(knex: Knex.Knex) {
-    this.knex = knex;
-  }
-
-  async init() {
-    const userTableExists = await this.knex.schema.hasTable('user');
-    const userVoteTableExists = await this.knex.schema.hasTable('user_vote');
-
-    if (!userTableExists) {
-      await this.knex.schema.createTable('user', (table: any) => {
-        table.uuid('id').primary().defaultTo(uuidv4());
-        table.string('email').unique().notNullable();
-        table.string('password').notNullable();
-      });
+    constructor(knex: Knex.Knex) {
+        this.knex = knex;
     }
 
-    if (!userVoteTableExists) {
-      await this.knex.schema.createTable('user_vote', (table: any) => {
-        table.increments('id').primary();
-        table.uuid('user_id').references('id').inTable('user').notNullable();
-        table.uuid('article_id').references('id').inTable('news_article').notNullable();
-        table.enu('vote', ['left', 'right']).notNullable();
-      });
-    }
-  }
+    async init() {
+        const userTableExists = await this.knex.schema.hasTable('user');
+        const userVoteTableExists = await this.knex.schema.hasTable('user_vote');
 
-  async createUser(user: User): Promise<User | null> {
-    try {
-      const [createdUser] = await this.knex('user').insert(user).returning('*');
-      return createdUser || null;
-    } catch (error) {
-      return null;
-    }
-  }
+        if (!userTableExists) {
+            await this.knex.schema.createTable('user', (table: any) => {
+                table.uuid('id').primary().defaultTo(uuidv4());
+                table.string('email').unique().notNullable();
+                table.string('password').notNullable();
+            });
+        }
 
-  async getUserByEmail(email: string): Promise<User | null> {
-    try {
-      const user = await this.knex('user').where('email', email).first();
-      return user || null;
-    } catch (error) {
-      return null;
+        if (!userVoteTableExists) {
+            await this.knex.schema.createTable('user_vote', (table: any) => {
+                table.increments('id').primary();
+                table.uuid('user_id').references('id').inTable('user').notNullable();
+                table.uuid('article_id').references('id').inTable('news_article').notNullable();
+                table.enu('vote', ['left', 'right']).notNullable();
+            });
+        }
     }
-  }
+
+    async createUser(user: User): Promise<User | null> {
+        try {
+            const [createdUser] = await this.knex('user').insert(user).returning('*');
+            return createdUser || null;
+        } catch (error) {
+            return null;
+        }
+    }
+
+    async getUserBy(target: string, match: string): Promise<any | null> {
+        try {
+            const data = await this.knex('user').where(target, match).first();
+            return data || null;
+        } catch (error) {
+            return null;
+        }
+    }
 
     async createVote(userVote: UserVote): Promise<UserVote | null> {
         try {
@@ -58,31 +58,31 @@ class UserModel {
             return null;
         }
     }
-  
+    
 
-  async deleteUserByEmail(email: string): Promise<User | null> {
-    try {
-      const deletedUser = await this.knex('user').where('email', email).del().returning('*');
-      return deletedUser[0] || null;
-    } catch (error) {
-      return null;
+    async deleteUserByEmail(email: string): Promise<User | null> {
+        try {
+            const deletedUser = await this.knex('user').where('email', email).del().returning('*');
+            return deletedUser[0] || null;
+        } catch (error) {
+            return null;
+        }
     }
-  }
 
-  async close() {
-    this.knex.destroy();
-  }
+    async close() {
+        this.knex.destroy();
+    }
 }
 
 const knexConfig = {
-  client: 'pg',
-  connection: {
-    host: PG_CONFIG.host as string,
-    user: PG_CONFIG.user as string,
-    password: PG_CONFIG.password as string,
-    database: PG_CONFIG.database as string,
-    port: PG_CONFIG.port as number,
-  },
+    client: 'pg',
+    connection: {
+        host: PG_CONFIG.host as string,
+        user: PG_CONFIG.user as string,
+        password: PG_CONFIG.password as string,
+        database: PG_CONFIG.database as string,
+        port: PG_CONFIG.port as number,
+    },
 };
 
 const knex = Knex.default(knexConfig);

@@ -32,3 +32,20 @@ export interface SuccessResponse<T = any> {
   meta: any;
   http_status: number;
 }
+
+export interface News {
+    title: string;
+    description: string;
+    timestamp: string;
+    coverUrl?: string;
+    url: string;
+}
+
+export interface NewsBias {
+    left_bias: number;
+    right_bias: number;
+}
+
+export interface NewsArticle {
+    id: string;
+}
