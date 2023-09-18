@@ -1,85 +1,43 @@
-/*
 import { Request, Response } from "express";
-import { ErrorCode, ErrorResponse, SuccessResponse, User } from "../types";
-import UserModel from "../models/UserModel";
 import Joi from 'joi';
-import { v4 as uuidv4 } from 'uuid';
 import jwt from 'jsonwebtoken';
+import UserModel from "../models/UserModel";
+import { JWT_SECRET } from "../config";
+import { ServerResponse, ErrorCode } from "../types";
 
-import { JWT_SECRET } from "../config"
+import { v4 as uuidv4 } from "uuid";
 
-const userSchema = Joi.object<User>({
+const userSchema = Joi.object({
   email: Joi.string().email().required(),
   password: Joi.string().min(8).required(),
 });
 
-function validateUserSchema(user: User) {
-  return userSchema.validate(user);
-}
-
 export async function registerUser(req: Request, res: Response) {
   const data = req.body;
 
-  const { error: schemaError } = validateUserSchema(data);
-
+  const { error: schemaError } = userSchema.validate(data);
   if (schemaError) {
-    const errorResponse: ErrorResponse = {
-      error: {
-        code: ErrorCode.BadRequest,
-        message: 'Bad Request',
-        description: 'Invalid user data. Please check your email and password and try again.',
-        details: {},
-      },
-      http_status: 400,
-    };
-    return res.status(400).json(errorResponse);
+    return sendErrorResponse(res, 400, ErrorCode.BadRequest, 'Bad Request', 'Invalid user data. Please check your email and password and try again.');
   }
 
   try {
-    const foundUser = await UserModel.getUserByEmail(data.email);
+    const foundUser = await UserModel.getUserBy("email", data.email);
 
     if (foundUser) {
-      const errorResponse: ErrorResponse = {
-        error: {
-          code: ErrorCode.BadRequest,
-          message: 'Bad Request',
-          description: 'User exists, try logging in instead',
-          details: { email: data.email },
-        },
-        http_status: 400,
-      };
-      return res.status(400).json(errorResponse);
+      return sendErrorResponse(res, 400, ErrorCode.BadRequest, 'Bad Request', 'User exists, try logging in instead', { email: data.email });
     }
 
-    const user: User = {
+    const user = {
       id: uuidv4(),
       ...data,
     };
 
     await UserModel.createUser(user);
-
     const token = jwt.sign({ userId: user.id }, JWT_SECRET, { expiresIn: '1h' });
 
-    const successResponse: SuccessResponse = {
-      data: {
-        token: token,
-      },
-      meta: null,
-      http_status: 201,
-    };
-    res.status(201).json(successResponse);
-  } catch (error: any) {
-    console.error('ERROR: /v1/users/register:', error);
-    const errorResponse: ErrorResponse = {
-      error: {
-        code: ErrorCode.InternalError,
-        message: 'Internal Server Error',
-        description: 'An unexpected error occurred while processing the request.',
-        details: error.message,
-      },
-      http_status: 500,
-    };
-    res.status(500).json(errorResponse);
+    return sendSuccessResponse(res, 201, { token });
+  } catch (error) {
+    return sendInternalServerErrorResponse(res, error);
   }
 }
 
@@ -87,56 +45,45 @@ export async function loginUser(req: Request, res: Response) {
   const { email, password } = req.body;
 
   try {
-    const user = await UserModel.getUserByEmail(email);
+    const user = await UserModel.getUserBy("email", email);
 
     if (!user) {
-      const errorResponse: ErrorResponse = {
-        error: {
-          code: ErrorCode.NotFound,
-          message: 'Not Found',
-          description: 'User not found',
-          details: null,
-        },
-        http_status: 404,
-      };
-      return res.status(404).json(errorResponse);
+      return sendErrorResponse(res, 404, ErrorCode.NotFound, 'Not Found', 'User not found');
     }
 
     if (user.password !== password) {
-      const errorResponse: ErrorResponse = {
-        error: {
-          code: ErrorCode.BadRequest,
-          message: 'Bad Request',
-          description: 'Invalid password',
-          details: null,
-        },
-        http_status: 400,
-      };
-      return res.status(400).json(errorResponse);
+      return sendErrorResponse(res, 400, ErrorCode.BadRequest, 'Bad Request', 'Invalid password');
     }
 
     const token = jwt.sign({ userId: user.id }, JWT_SECRET, { expiresIn: '1h' });
 
-    const successResponse: SuccessResponse = {
-      data: {
-        token: token,
-      },
-      meta: null,
-      http_status: 200,
-    };
-    res.status(200).json(successResponse);
-  } catch (error: any) {
-    console.error('ERROR: /v1/users/login:', error);
-    const errorResponse: ErrorResponse = {
-      error: {
-        code: ErrorCode.InternalError,
-        message: 'Internal Server Error',
-        description: 'An unexpected error occurred while processing the request.',
-        details: error.message,
-      },
-      http_status: 500,
-    };
-    res.status(500).json(errorResponse);
+    return sendSuccessResponse(res, 200, { token });
+  } catch (error) {
+    return sendInternalServerErrorResponse(res, error);
   }
 }
-*/
+
+function sendSuccessResponse(res: Response, httpStatus: number, data: any) {
+  const successResponse: ServerResponse = {
+    status: "success",
+    data,
+  };
+  res.status(httpStatus).json(successResponse);
+}
+
+function sendErrorResponse(res: Response, httpStatus: number, errorCode: ErrorCode, message: string, description: string, details?: any) {
+  const errorResponse: ServerResponse = {
+    status: "error",
+    error: {
+      code: errorCode,
+      message,
+      description
+    },
+  };
+  res.status(httpStatus).json(errorResponse);
+}
+
+function sendInternalServerErrorResponse(res: Response, error: any) {
+  console.error('Internal Server Error:', error);
+  return sendErrorResponse(res, 500, ErrorCode.InternalError, 'Internal Server Error', 'An unexpected error occurred while processing the request.', error.message);
+}

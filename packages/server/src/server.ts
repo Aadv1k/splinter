@@ -1,4 +1,4 @@
-import express, { Request, Response } from "express";
+import express, { Request, Response, NextFunction } from "express";
 import cors from "cors";
 import bodyParser from "body-parser"; 
 
@@ -12,13 +12,15 @@ const app = express();
 
 app.use(cors());
 
-app.use(async (req, res, next) => {
+app.use(async (req: Request, res: Response, next: NextFunction) => {
   await NewsModel.init();
   await UserModel.init();
   next();
 });
 
-app.use(bodyParser.json(), (error, req, res, next) => {
+app.use(bodyParser.json());
+
+app.use((error: any, req: Request, res: Response, next: NextFunction) => {
   if (error instanceof SyntaxError) {
     const errorResponse = {
       error: {

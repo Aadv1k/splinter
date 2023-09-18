@@ -98,6 +98,7 @@ export default async function(countryCode?: string): Promise<Array<News>> {
             timestamp: e.publishedAt,
             coverurl: e.urlToImage,
             url: e.url,
+            countryCode,
         };
     });
 

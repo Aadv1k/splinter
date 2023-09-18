@@ -20,6 +20,7 @@ class NewsModel {
                 await this.knex.schema.createTable('news_article', (table: any) => {
                     table.uuid('id').primary();
                     table.text('title');
+                    table.string('countryCode');
                     table.text('description');
                     table.timestamp('timestamp');
                     table.text('coverUrl');
@@ -41,23 +42,10 @@ class NewsModel {
         }
     }
 
-    async getNewsArticleBy(source: string, match: string): Promise<News & NewsArticle | null> {
+    async getNewsArticlesBy(source: string, match: string): Promise<Array<News & NewsArticle>> {
         try {
-            const dbNews = await this.knex('news_article').where(source, match).first(); 
-            if (!dbNews) {
-                return null;
-            }
-
-            const newsWithArticle: News & NewsArticle = {
-                id: dbNews.id,
-                title: dbNews.title,
-                description: dbNews.description,
-                timestamp: dbNews.timestamp,
-                coverUrl: dbNews.coverUrl,
-                url: dbNews.url,
-            };
-
-            return newsWithArticle;
+            const dbNews = await this.knex('news_article').where(source, match).orderBy('timestamp', 'desc'); 
+            return dbNews;
         } catch (error: any) {
             throw new Error(`Failed to fetch news by ${source}: ${error.message}`);
         }
@@ -75,6 +63,7 @@ class NewsModel {
                     description: news.description,
                     timestamp: news.timestamp,
                     coverUrl: news.coverUrl,
+                    countryCode: news.countryCode,
                     url: news.url,
                 });
 

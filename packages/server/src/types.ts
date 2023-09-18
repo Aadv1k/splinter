@@ -31,6 +31,7 @@ export interface ServerResponse {
 export interface News {
     title: string;
     description: string;
+    countryCode: string;
     timestamp: string;
     coverUrl?: string;
     url: string;
