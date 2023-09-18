@@ -64,9 +64,9 @@ function App() {
   return (
     <>
 
-    <main className="w-[80%] mx-auto">
+    <main className="w-[95%] md:w-[80%] mx-auto">
       <nav className="w-full">
-        <div className="text-4xl text-gray-drk flex justify-between">
+        <div className="text-4xl text-gray-drk">
           <span className="text-lime">Spli</span><span>nter</span>
         </div>
       </nav>
