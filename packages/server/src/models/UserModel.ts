@@ -50,6 +50,15 @@ class UserModel {
         }
     }
 
+    async getVotesBy(target: string, match: string): Promise<any | null> {
+        try {
+            const data = await this.knex('user_vote').where(target, match);
+            return data || null;
+        } catch (error) {
+            return null;
+        }
+    }
+
     async createVote(userVote: UserVote): Promise<UserVote | null> {
         try {
             const [createdUserVote] = await this.knex('user_vote').insert(userVote).returning('*');

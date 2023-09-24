@@ -67,7 +67,7 @@ export async function postVote(req: Request, res: Response) {
   let parsedToken;
 
   try {
-    parsedToken = jwt.verify(jwtToken as string, JWT_SECRET) as { userId: string, email: string }; // Define the expected token shape
+    parsedToken = jwt.verify(jwtToken as string, JWT_SECRET) as { userId: string, email: string }; 
   } catch {
     return res.status(401).json({
       status: "error",
@@ -93,6 +93,47 @@ export async function postVote(req: Request, res: Response) {
   }
 
   const voteSide = data.vote;
+  const votes = await getVotesBy("article_id", newsid);
+  const foundVote = votes.find(e => e.user_id === parsedToken.userId);
+
+    if (!foundVote) {
+        try {
+            await createVote({
+                vote: voteSide,
+                user_id: parsedToken.userId,
+                article_id: newsid
+            })
+
+            if (voteSide === "left") {
+                await NewsModel.incrementLeftBias();
+            } else {
+                await NewsModel.decrementLeftBias();
+            }
+
+            return res.status(200).json({
+                status: "success",
+                message: "Vote casted successfully"
+            } as ServerResponse);
+        } catch (error: any) {
+            return res.status(500).json({
+                status: "error",
+                error: {
+                    code: ErrorCode.BadRequest,
+                    message: "Something went wrong while casting a vote",
+                    description: `internal server error while creating a vote in the db: ${error.message}`,
+                },
+            } as ServerResponse);
+        }
+    } else  {
+        return res.status(400).json({
+            status: "error",
+            error: {
+                code: ErrorCode.BadRequest,
+                message: "Cannot vote twice",
+                description: `unable to vote twice, already voted for ${foundVote.vote}, try /news/unvote instead`,
+            },
+        } as ServerResponse);
+    }  
 
   // TODO: get past user votes for this news id
   // TODO: if voteSide exists in the above, return error, can't vote twice

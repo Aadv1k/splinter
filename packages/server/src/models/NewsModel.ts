@@ -11,6 +11,7 @@ class NewsModel {
         this.knex = knex;
     }
 
+
     async init() {
         try {
             const articleTableExists = await this.knex.schema.hasTable('news_article');
@@ -39,6 +40,49 @@ class NewsModel {
 
         } catch (error: any) {
             throw new Error(`Failed to initialize database: ${error.message}`);
+        }
+    }
+    async incrementLeftBias(articleId: string): Promise<void> {
+        try {
+            await this.knex('news_bias')
+                .where('article_id', articleId)
+                .increment('left_bias', 1);
+
+        } catch (error: any) {
+            throw new Error(`Failed to increment left bias: ${error.message}`);
+        }
+    }
+
+    async decrementLeftBias(articleId: string): Promise<void> {
+        try {
+            await this.knex('news_bias')
+                .where('article_id', articleId)
+                .decrement('left_bias', 1);
+
+        } catch (error: any) {
+            throw new Error(`Failed to decrement left bias: ${error.message}`);
+        }
+    }
+
+    async incrementRightBias(articleId: string): Promise<void> {
+        try {
+            await this.knex('news_bias')
+                .where('article_id', articleId)
+                .increment('right_bias', 1);
+
+        } catch (error: any) {
+            throw new Error(`Failed to increment right bias: ${error.message}`);
+        }
+    }
+
+    async decrementRightBias(articleId: string): Promise<void> {
+        try {
+            await this.knex('news_bias')
+                .where('article_id', articleId)
+                .decrement('right_bias', 1);
+
+        } catch (error: any) {
+            throw new Error(`Failed to decrement right bias: ${error.message}`);
         }
     }
 

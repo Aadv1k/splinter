@@ -11,7 +11,7 @@ router.get("/",  newsController.getNews);
 router.post("/vote/:id",  newsController.postVote);
 
 // POST, PUT, PATCH, DELETE, UPDATE /v1/news
-router.all(["/", "/vote"], (req: Request, res: Response) => {
+router.all("/", (req: Request, res: Response) => {
   const errorResponse: ServerResponse = {
     status: "error",
     error: {
