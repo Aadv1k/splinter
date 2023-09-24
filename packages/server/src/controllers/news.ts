@@ -1,8 +1,9 @@
 import { Request, Response } from "express";
-import fetchNews, { isCountryCodeValid } from "../services/news";
+import fetchNews, { isCountryCodeValid } from "../services/fetchNews";
 import { ServerResponse, ErrorCode } from "../types";
 import { JWT_SECRET } from "../config";
 import NewsModel from "../models/NewsModel";
+import UserModel from "../models/UserModel";
 import jwt from 'jsonwebtoken';
 
 function isValidUUID(uuid: string): boolean {
@@ -64,7 +65,7 @@ export async function postVote(req: Request, res: Response) {
   }
 
   const jwtToken = auth.split(" ").pop();
-  let parsedToken;
+  let parsedToken: any;
 
   try {
     parsedToken = jwt.verify(jwtToken as string, JWT_SECRET) as { userId: string, email: string }; 
@@ -93,21 +94,21 @@ export async function postVote(req: Request, res: Response) {
   }
 
   const voteSide = data.vote;
-  const votes = await getVotesBy("article_id", newsid);
-  const foundVote = votes.find(e => e.user_id === parsedToken.userId);
+  const votes = await UserModel.getVotesBy("article_id", newsid);
+  const foundVote = votes.find((e: any) => e.user_id === parsedToken.userId);
 
     if (!foundVote) {
         try {
-            await createVote({
+            await UserModel.createVote({
                 vote: voteSide,
                 user_id: parsedToken.userId,
                 article_id: newsid
             })
 
             if (voteSide === "left") {
-                await NewsModel.incrementLeftBias();
+                await NewsModel.incrementLeftBias(newsid);
             } else {
-                await NewsModel.decrementLeftBias();
+                await NewsModel.decrementLeftBias(newsid);
             }
 
             return res.status(200).json({
@@ -134,10 +135,6 @@ export async function postVote(req: Request, res: Response) {
             },
         } as ServerResponse);
     }  
-
-  // TODO: get past user votes for this news id
-  // TODO: if voteSide exists in the above, return error, can't vote twice
-  // TODO: if voteSide does not exist, cast a vote. Find the news_id in the news_bias and increment the target
 }
 
 export async function getNews(req: Request, res: Response) {
